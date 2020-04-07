@@ -1,5 +1,4 @@
-// Victor Antonio Silva de Queiroga
-// 22117054-1
+//---------------------------------------------> Analisador L√©xico de Vari√°veis e N√∫meros <-------------------------------------------//
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,6 +9,8 @@
 void e0();
 void e1();
 void e2();
+void aceita();
+void rejeita();
 
 
 //sigmas
@@ -20,25 +21,20 @@ void sigma4();
 void sigma5();
 void sigma6();
 
-
 //vetores
-char tempS[10];
-char texto[30];
-
+char texto[100];
+char tempS[100];
+char tabVar[100][100];
 
 //variaveis
 int tempN = 0;
-int i, x = 0;
-int n = 0; // percorrer tempS
-int u, e = 0; //testar se esta na lista
-
-
-//matriz
-char tabVar[6][5];
-
+int s = 0; //tamanho do tempS
+int x = 0; //percorrer texto
 
 //flags
-int fpp = 0;  // primero item da matriz
+int qtdVar = 0; //quantidade de variaveis na tabela
+int fpp = 0; //primeiro item da tabela
+
 
 
 int main(void){
@@ -49,169 +45,162 @@ int main(void){
 	
 	e0();
 	
-	
-	printf("\n");
-
-	system("PAUSE");
+	getch();
 	return 0;
 }
 
 
+// ----------------------------------------------> Sigmas <-----------------------------------------------
 void sigma1(){
-	tempS[n] = texto[i];
-	n++;	
-	e = 0;
+	//inicializar tempS
+	int i = 0;
+	for(i = 0; i<s; i++){
+		tempS[i] = '\0';
+	}
+	
+	tempS[0] = texto[x];
+	s = 1;
 }
-
 
 void sigma2(){
-	tempS[n] = texto[i];
-	n++;
+	tempS[s] = texto[x];
+	s++; 
 }
 
-
-void sigma3(){
-	// primeiro item da lista
+void sigma3(){   
+	
+	//flags
+	int var = 0; // flag para se existir na tabela de variaveis
+	int ex = 0;	 // flag para saber a linha da variavel 
+	
+	//variaveis
+	int i, j = 0;
+	
+	tempS[s] = '\0';
+	
+	//primeiro item da tabela
 	if(fpp == 0){
-		while(tempS[x] != '\0'){
-			tabVar[fpp][x] = tempS[x];
-			x++;
+		for(i=0; i<s; i++){
+			tabVar[qtdVar][i] = tempS[i];
 		}
-		printf("V(%d) ", fpp);
-		fpp++;
+		printf("V(%d) ", qtdVar);
+		qtdVar = 1;
+		fpp = 1;
 	}
 	
-	// caso n„o seja o primeiro item da lista
 	else{
-		// vÍ se j· existe na lista
-		for(u=0; u<fpp; u++){
-			for(x=0; x<5; x++){
-				if(tabVar[u][x] == tempS[x]){
-					e=1;
-				}
-				else{
-					e=0;
-					break;
+		// ver se existe na tabela
+		for(i=0; i<qtdVar; i++){
+			for(j=0; j<s; j++){
+				if(tempS[j] == tabVar[i][j]){
+					var = 1;
+					ex = i;
 				}
 			}
 		}
 		
-		// se n„o existir ent„o adiciona na lista
-		if(e == 0){
-			x=0;
-			while(tempS[x] != '\0'){
-				tabVar[fpp][x] = tempS[x];
-				x++;
+		// se n√£o existir adiciona na tabela, se existir printa a posi√ß√£o da variavel
+		if(var == 0){
+			for(j=0; j<100; j++){
+				tabVar[qtdVar][j] = tempS[j];
 			}
-			printf("V(%d) ", fpp);
-			fpp++;
+			printf("V(%d) ", qtdVar);
+			qtdVar++;
 		}
-		
-		//caso j· exista imprime o valor da variavel
 		else{
-			printf("V(%d) ", u-1);
+			printf("V(%d) ", ex);
 		}
 	}
-	
-	n = 0;
-	x = 0;
 }
-
 
 void sigma4(){
-	int a = texto[i] - '0';
+	int a = texto[x] - '0';
 	tempN = a;
 }
 
-
 void sigma5(){
-	int b = texto[i] - '0';
+	int b = texto[x] - '0';
 	tempN = tempN * 10;
 	tempN = tempN + b;
 }
 
-
 void sigma6(){
 	printf("N(%d) ", tempN);
 }
- 
- 
+
+
+
+
+// ----------------------------------------------> Estados <-----------------------------------------------
 void e0(){
 	
-	if(isalpha(texto[i])){
+	//if para letra
+	if(isalpha(texto[x])){
 		sigma1();
-		i++;
+		x++;
 		e1();
-	}
-		
-	else if(isdigit(texto[i])){
+	}	
+	
+	//if para numero
+	else if(isdigit(texto[x])){
 		sigma4();
-		i++;
+		x++;
 		e2();
 	}
-		
-	else if(texto[i] == ' '){
-		i++;
+	
+	//if para espa√ßo
+	else if(texto[x] == ' '){
+		x++;
 		e0();
 	}
 	
-	else if(texto[i] == '\0'){
+	//if para final do texto
+	else if(texto[x] == '\0'){
+		printf("\n\n -------------> Tabela de Variaveis <-------------");
+		int i = 0;
+		for(i = 0; i<qtdVar; i++){
+			printf("\n%d ......... %s\n", i, tabVar[i]);
+		}
+			
+		getch();
 		system("PAUSE");
-		
 	}
 }
-
 
 void e1(){
-	
-	if(isalpha(texto[i])){
+	//if para letra
+	if(isalpha(texto[x])){
 		sigma2();
-		i++;
+		x++;
 		e1();
 	}
 		
-	else if(isdigit(texto[i])){
+	//if para numero
+	else if(isdigit(texto[x])){
 		sigma2();
-		i++;
+		x++;
 		e1();
 	}
 		
-	else if(texto[i] == ' '){
+	//if para espa√ßo ou final
+	else{
 		sigma3();
-		i++;
 		e0();
 	}
-	
-	else if(texto[i] == '\0'){    
-		sigma3();
-		e0();
-	}		
 }
 
-
 void e2(){
-	
-	if(isalpha(texto[i])){
-		sigma6();
-		tempN = 0;
-		tempS[0] = '\0';
-		e0();
-	}
 		
-	else if(isdigit(texto[i])){
+	//if para numero
+	if(isdigit(texto[x])){
 		sigma5();
-		i++;
+		x++;
 		e2();
 	}
 		
-	else if(texto[i] == ' '){
+	else{
 		sigma6();
-		i++;
 		e0();
 	}
-		
-	else if(texto[i] == '\0'){
-		sigma6();
-	}			
+				
 }
-
